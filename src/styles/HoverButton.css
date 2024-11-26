@@ -1,0 +1,23 @@
+
+
+.button-text {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #dbdbdb;
+    font-size: 20px;
+    padding: 5px 10px;
+    opacity: 0;
+    white-space: nowrap;
+    filter:unset;
+}
+
+.hover-button:hover {
+    transform: scale(1.1);
+}
+
+.hover-button:hover .button-text {
+    opacity: 1;
+    filter:unset;
+}

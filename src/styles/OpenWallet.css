@@ -1,0 +1,17 @@
+.inputLabel {
+    margin: auto;
+    margin-bottom: 30px;
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #ffffff;
+    outline: none;
+    background: transparent;
+    border-radius: 0px;
+    box-shadow: none;
+}
+body {
+    user-select: none;
+}
+::-ms-reveal {
+    filter: invert(100%);
+}
