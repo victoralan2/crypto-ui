@@ -10,13 +10,8 @@ import { useNavigate } from "react-router-dom";
 import "../App.css"
 
 
-interface SendCryptoQRProps {
-    onSend: (amount: number, address: string) => boolean;
-    isValid: (address: string) => boolean;
-    balance: number;
-}
 
-const SendCryptoQR: React.FC<SendCryptoQRProps> = ({ onSend, isValid, balance }) => {
+const SendCryptoQR: React.FC = () => {
     const navigate = useNavigate();
     const [amount, setAmount] = useState<number>(0);
     const [qrCodeData, setQrCodeData] = useState<string | null>(null);
@@ -77,7 +72,6 @@ const SendCryptoQR: React.FC<SendCryptoQRProps> = ({ onSend, isValid, balance })
                 succsessText.current.textContent = "";
             }
             if (errorText.current) {
-                console.log(error, qrCodeData);
                 errorText.current.textContent = error;
             }
         }

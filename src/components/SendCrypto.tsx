@@ -44,7 +44,6 @@ const SendCrypto: React.FC = () => {
                 succsessText.current.textContent = "";
             }
             if (errorText.current) {
-                console.log(error, address);
                 errorText.current.textContent = error;
             }
         }

@@ -36,7 +36,7 @@ fn main() {
                 a.manage(Mutex::new(AppState::default()));
                 Ok(())
             })
-            .invoke_handler(tauri::generate_handler![is_valid_address, create_transaction, get_wallet_info, get_available_wallet_names, is_wallet_loaded, try_load_wallet, create_new_wallet, get_wallet_address, test, save_wallet_to_file, is_valid_url])
+            .invoke_handler(tauri::generate_handler![is_valid_address, create_transaction, get_wallet_info, get_available_wallet_names, is_wallet_loaded, try_unload_wallet, try_load_wallet, create_new_wallet, get_wallet_address, test, save_wallet_to_file, is_valid_url])
             .run(tauri::generate_context!())
             .expect("error while running tauri application");
 }

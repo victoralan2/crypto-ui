@@ -52,10 +52,11 @@ impl Wallet {
 		if let Ok(mut wallet_file) = File::options().read(true).open(format!("{}/{}.bin", data_dir, name)) {
 			let mut data = Vec::new();
 			let _ = wallet_file.read_to_end(&mut data).map_err(|_| UnableToLoadError::CorruptedFile)?;
+
 			let encrypted_wallet: EncryptedObject = EncryptedObject::load(data);
+
 			let mut wallet: Wallet = encrypted_wallet.decrypt_object(password).map_err(|_| UnableToLoadError::IncorrectPassword)?;
 			wallet.update_utxos().await;
-			// TODO: Build wallet info here
 			Ok(wallet)
 		} else {
 			Err(UnableToLoadError::FileNotFound)
@@ -68,9 +69,11 @@ impl Wallet {
 		if let Ok(mut keychain_file) = File::options()
 			.read(true)
 			.write(true)
+			.append(false)
 			.open(format!("{}/{}.bin", data_dir, self.name))
 		{
 			let encrypted_key_chain = EncryptedObject::encrypt_object(&self, self.password.clone().as_str());
+			encrypted_key_chain.decrypt_object::<Wallet>(self.password.clone().as_str()).ok();
 			let serialized_encrypted_keychain = encrypted_key_chain.serialize();
 			match keychain_file.write_all(&serialized_encrypted_keychain).map_err(|e| UnableToCreateError::UnableToWriteToFile(e.to_string())) {
 				Ok(_) => {}
@@ -117,6 +120,7 @@ impl Wallet {
 			let epoch_second = UNIX_EPOCH.elapsed().unwrap().as_secs();
 			wallet.info.wallet_creation_second = epoch_second;
 			let encrypted_key_chain = EncryptedObject::encrypt_object(&wallet, password);
+
 			let serialized_encrypted_keychain = encrypted_key_chain.serialize();
 			keychain_file.write_all(&serialized_encrypted_keychain).map_err(|e| UnableToCreateError::UnableToWriteToFile(e.to_string()))?;
 
@@ -144,21 +148,21 @@ impl Wallet {
 				address: self.key_chain.address,
 			};
 			url.set_path(routes::GET_UTXOS_URL);
-			let response = client
+			if let Ok(response) = client
 				.get(Url::from(url.clone()))
 				.header(reqwest::header::CONTENT_TYPE, standard::DATA_TYPE)
 				.body(standard_serialize(&get_utxos))
-				.send().await.unwrap();
-			println!("STATUS: {}, URL: {}", response.status(), url);
-			match response.bytes().await.map(|x|x.to_vec()) {
-				Ok(data) => {
-					if let Ok(utxos) = standard_deserialize::<UTXOs>(data.as_slice()) {
-						self.utxos = utxos.utxos;
-					} else {
-						eprint!("Unable to deserialize utxos from node");
+				.send().await {
+				match response.bytes().await.map(|x|x.to_vec()) {
+					Ok(data) => {
+						if let Ok(utxos) = standard_deserialize::<UTXOs>(data.as_slice()) {
+							self.utxos = utxos.utxos;
+						} else {
+							eprint!("Unable to deserialize utxos from node");
+						}
 					}
+					Err(_) => {}
 				}
-				Err(_) => {}
 			}
 		}
 		for utxo in &self.utxos {
@@ -187,7 +191,6 @@ impl Wallet {
 	
 	pub fn create_transaction(&mut self, amount: u64, address: P2PKHAddress) -> Option<Transaction> {
 		let (utxos, change) = self.calculate_utxos_to_use(amount)?;
-		println!("UTXOS: {:?}, change: {}", utxos.iter().map(|x| x.amount).collect::<Vec<u64>>(), change);
 		let mut inputs = Vec::new();
 		for (i, utxo) in utxos.iter().enumerate() {
 			inputs.push(Input {

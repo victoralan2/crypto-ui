@@ -19,6 +19,8 @@ pub fn is_valid_address(address: &str) -> bool {
 	P2PKHAddress::from_string(address.to_string()).is_ok()
 }
 
+
+/// Returns (balance, wallet_creation_second, resonance_sent)
 #[tauri::command]
 pub async fn get_wallet_info(state: State<'_, Mutex<AppState>>) -> Result<(u64, u64, i64), ()> {
 	let s = state.lock().await;

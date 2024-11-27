@@ -3,6 +3,7 @@ import "../styles/AddWallet.css";
 import DynamicStringList from '../components/DynamicStringList';
 
 import { invoke } from '@tauri-apps/api/tauri'
+import { useNavigate } from 'react-router-dom';
 
 const AddWallet: React.FC = () => {
     var [name, setName] = useState<string>();
@@ -11,14 +12,14 @@ const AddWallet: React.FC = () => {
 
     var [repeatedPassword, setRepeatedPassword] = useState<string>();
     const errorText = useRef<HTMLParagraphElement>(null);
-
+    const navigator = useNavigate();
     function isValidName(input: string): boolean {
         const pattern = /^[a-zA-Z0-9]{1,15}$/; // Regex pattern
         return pattern.test(input); // Returns true if input matches the pattern
     }
 
-    const createWallet = (_: React.FormEvent) => {
-    
+    const createWallet = async (_: React.FormEvent) => {
+        
         if (!name) {
             if (errorText.current) {
                 errorText.current.textContent = "Name is empty"; 
@@ -54,15 +55,22 @@ const AddWallet: React.FC = () => {
         if (errorText.current) {
             errorText.current.textContent = "";
         }
+        const wallet_names = await invoke<string[]>('get_available_wallet_names');
+        wallet_names.forEach((e) => {
+            if (name == e) {
+                if (errorText.current) {
+                    errorText.current.textContent = "Wallet with that name already exists";
+                }
+            }
+        });
         if (password) {
-            console.log("lets goo");
             invoke("create_new_wallet", { password: password, name: name, trustedPeers })
-            .then((_) => {
-                window.location.reload();
-            })
-            .catch((e) => {
-                console.log(e)
-            });
+                .then((_) => {
+                    navigator("/");
+                })
+                .catch((e) => {
+                    
+                });
         }
     }
     return (

@@ -12,7 +12,7 @@ const OpenWallet: React.FC = () => {
     var [isDecrypting, setDecrypting] = useState<boolean>(false);
     var [errorMsg, setErrorMsg] = useState<string>("");
 
-
+    const navigator = useNavigate();
     useEffect(() => {
         const load_wallet_options = async () => {
             const wallet_names = await invoke<string[]>('get_available_wallet_names');
@@ -82,6 +82,11 @@ const OpenWallet: React.FC = () => {
                             <button style={{display: "block", marginRight: "-30px", float: "right"}} onClick={openWallet}>
                                 Open wallet
                             </button>
+                            <div style={navbarStyle}>
+                                <button onClick={() => {
+                                    navigator("add-wallet");
+                                }} style={{ width: "100%", height: "100px", margin: "auto", fontSize: "20px", background: "transparent", color: "#dbdbdb"}}>Or create a wallet</button>
+                            </div>
                         </div>
                         <div style={{width: "100%", margin: "auto"}}></div>
                     </div>
@@ -89,7 +94,17 @@ const OpenWallet: React.FC = () => {
             </div>
         );
     }
-
 };
 
 export default OpenWallet;
+// Inline styles for simplicity
+const navbarStyle: React.CSSProperties = {
+    overflow: "hidden",
+    position: "fixed",
+    display: "flex",
+    width: "100%",
+    bottom: 0,
+    right: 0,
+    left: 0,
+    backgroundColor: "#232323",
+};

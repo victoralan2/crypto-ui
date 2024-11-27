@@ -2,17 +2,7 @@ import { invoke } from '@tauri-apps/api';
 import React, { useEffect, useState } from 'react';
 import Title from '../components/Title';
 
-// Inline styles for simplicity
-const navbarStyle: React.CSSProperties = {
-    overflow: "hidden",
-    position: "fixed",
-    display: "flex",
-    width: "100%",
-    bottom: 0,
-    right: 0,
-    left: 0,
-    backgroundColor: "#232323",
-};
+
 
 const Wallet: React.FC= () => {
     var [balance, setBalance] = useState<number>(0);
@@ -21,9 +11,9 @@ const Wallet: React.FC= () => {
 
     useEffect(() => {
         const updateInfo = async () => {
-            var [_balance, _sent, _timeCreated] = await invoke<[number, number, number]>("get_wallet_info");
+            var [_balance, _timeCreated, _sent] = await invoke<[number, number, number]>("get_wallet_info");
+            console.log("Time:" + _timeCreated);
             setBalance(_balance);
-            console.log(_timeCreated);
             setSent(_sent);
             setBalance(_timeCreated);
         }
@@ -62,8 +52,10 @@ const Wallet: React.FC= () => {
                 </div>
             </div>
             <div style={navbarStyle}>
-                <button style={{ width: "100%", height: "100px", margin: "auto", fontSize: "20px", background: "transparent", color: "#dbdbdb"}}>Export</button>
-                <button style={{ width: "100%", height: "100px", margin: "auto", fontSize: "20px", background: "transparent", color: "#dbdbdb"}}>Change Wallet</button>
+                <button onClick={() => {
+                    invoke("try_unload_wallet");
+                    window.location.reload();
+                }} style={{ width: "100%", height: "100px", margin: "auto", fontSize: "20px", background: "transparent", color: "#dbdbdb"}}>Change Wallet</button>
             </div>
         </div>
     );
@@ -72,3 +64,14 @@ const Wallet: React.FC= () => {
 export default Wallet;
 
 const containerStyle: React.CSSProperties = { width: "100%", border: "solid 1px white", padding: "5px", paddingLeft: "20px", backgroundColor: "#333" };
+// Inline styles for simplicity
+const navbarStyle: React.CSSProperties = {
+    overflow: "hidden",
+    position: "fixed",
+    display: "flex",
+    width: "100%",
+    bottom: 0,
+    right: 0,
+    left: 0,
+    backgroundColor: "#232323",
+};

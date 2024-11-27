@@ -1,3 +1,4 @@
+use base58::ToBase58;
 use serde::{Serialize, Deserialize};
 use serde::de::DeserializeOwned;
 use crate::crypto::aes::{decrypt_data, encrypt_data};
